@@ -29,9 +29,15 @@ class DynamicArray
   end
 
   def [](i)
+    @store[i]
   end
 
   def []=(i, val)
+    @store[i] = val
+    rescue #overflow error
+      resize!
+    retry
+    @count += 1
   end
 
   def capacity
@@ -42,12 +48,20 @@ class DynamicArray
   end
 
   def push(val)
+    self[count] = val
+    @count += 1
+    val
   end
 
   def unshift(val)
   end
 
   def pop
+    return nil if count == 0
+    val = self[count - 1]
+    self[count - 1] = nil
+    @count -= 1
+    val
   end
 
   def shift
@@ -77,5 +91,16 @@ class DynamicArray
   private
 
   def resize!
+    old_store = @store
+    @store = StaticArray.new(capacity * 2)
+    old_count = count
+    @count = 0
+    i = 0
+    while i < old_count
+      self[i] = old_store[i]
+
+      i += 1
+    end
+    p @count
   end
 end

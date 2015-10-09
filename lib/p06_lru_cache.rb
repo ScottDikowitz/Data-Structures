@@ -15,7 +15,6 @@ class LRUCache
   end
 
   def get(key)
-    #is key in hash?
     if map.include?(key)
       link = map.get(key)
       value = link.val
