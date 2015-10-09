@@ -1,8 +1,15 @@
 class Link
-  attr_accessor :key, :val, :next
+  attr_accessor :key, :val, :next, :previous
 
-  def initialize(key = nil, val = nil, nxt = nil)
-    @key, @val, @next = key, val, nxt
+  def initialize(key = nil, val = nil, nxt = nil, prv = nil)
+    @key, @val, @next, @previous = key, val, nxt, prv
+  end
+
+  def delete
+    #puts self, self.previous, self.next
+    self.previous.next, self.next.previous = self.next, self.previous
+
+    self.next, self.previous = nil, nil
   end
 
   def to_s
@@ -12,10 +19,13 @@ end
 
 class LinkedList
   include Enumerable
-  attr_reader :head
+  attr_reader :head, :tail
 
   def initialize
     @head = Link.new
+    @tail = Link.new
+    head.next = @tail
+    tail.previous = @head
   end
 
   def [](i)
@@ -28,14 +38,11 @@ class LinkedList
   end
 
   def last
-    return @head if empty?
-    self.each do |link|
-      return link if link.next.nil?
-    end
+    tail.previous
   end
 
   def empty?
-    head.next.nil?
+    head.next == tail
   end
 
   def get(key)
@@ -45,34 +52,38 @@ class LinkedList
     nil
   end
 
+  def insert_link(new_link)
+    last.next = new_link
+    @tail.previous = new_link
+    new_link.previous = last
+    new_link.next = tail
+    new_link
+  end
+
   def include?(key)
-    self.any? do |link|
-      link.key == key
-    end
-
-
+    self.any? { |link| link.key == key }
   end
 
   def insert(key, val)
-    self.last.next = Link.new(key, val)
+    # self.last.next = Link.new(key, val)
+    new_link = Link.new(key, val, tail, last)
+    last.next = new_link
+    @tail.previous = new_link
+    new_link
   end
 
   def remove(key)
-    last = head
     self.each do |link|
       if link.key == key
-        nxt = link.next
-        last.next = nxt
-        link.next = nil
+        link.delete
         break
       end
-      last = link
     end
   end
 
   def each
     nxt = first
-    until nxt.nil?
+    until nxt == tail
       yield(nxt)
       nxt = nxt.next
     end

@@ -15,6 +15,22 @@ class LRUCache
   end
 
   def get(key)
+    #is key in hash?
+    if map.include?(key)
+      link = map.get(key)
+      value = link.val
+      link.delete
+
+      store.insert_link(link)
+    else
+      value = @prc.call(key)
+      prev_link = store.insert(key, value)
+      map.set(key, prev_link)
+    end
+
+    eject! if self.count > @max
+
+    value
   end
 
   def to_s
@@ -22,6 +38,8 @@ class LRUCache
   end
 
   private
+
+  attr_reader :map, :store
 
   def calc!(key)
     # suggested helper method; insert an (un-cached) key
